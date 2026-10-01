@@ -1,0 +1,22 @@
+# Local credentials and machine-specific configuration
+ordo/config.yaml
+*.pem
+*.key
+
+# Generated artifacts and user inputs
+outputs/
+data/
+*.cleaned.txt
+*_labels.json
+*_metrics.json
+*_outline.md
+*_reconstructed.md
+*_global_structure.json
+*.linebreak_candidates.json
+*.linebreak_scored.json
+*.cleaning_report.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/

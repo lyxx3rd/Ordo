@@ -1,0 +1,6 @@
+# Online document-structure model.
+model_name: qwen3.7-flash
+
+# JSON file containing {"Qwen_deli": "<your DashScope API key>"}.
+# Copy this file to config.yaml and set a local, untracked path.
+api_keys_path: ~/.config/ordo/api_keys.json
