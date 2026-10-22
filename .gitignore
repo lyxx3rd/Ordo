@@ -1,5 +1,12 @@
 # Local credentials and machine-specific configuration
 ordo/config.yaml
+local_service/config.local.json
+local_service/runtime/
+models/
+*.egg-info/
+build/
+dist/
+.env
 *.pem
 *.key
 

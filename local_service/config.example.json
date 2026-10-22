@@ -1,0 +1,21 @@
+{
+  "model_path": "../models/Ordo-Qwen3.5-2B-Reviewed2-Final-BF16",
+  "model_python": "python",
+  "gpu": "0",
+  "model_port": 8010,
+  "model_name": "ordo-final-2b",
+  "gpu_memory_utilization": 0.45,
+  "max_model_len": 8192,
+  "model_url": "http://127.0.0.1:8010/v1",
+  "api_host": "127.0.0.1",
+  "auth_enabled": true,
+  "api_port": 8080,
+  "concurrency": 16,
+  "max_documents": 4,
+  "max_input_bytes": 2097152,
+  "max_lines": 20000,
+  "request_timeout": 120,
+  "document_timeout": 1800,
+  "retries": 2,
+  "runtime_dir": "./runtime"
+}

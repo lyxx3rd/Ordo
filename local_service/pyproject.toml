@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ordo-local-service"
+version = "1.0.0"
+description = "Offline text structure labeling API for the Ordo final 2B model"
+license = {file = "LICENSE"}
+requires-python = ">=3.10"
+dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "httpx>=0.27,<1", "pydantic>=2.7,<3", "python-multipart>=0.0.20,<1"]
+
+[project.scripts]
+ordo-local = "ordo_local.manage:main"
+ordo-label = "ordo_local.client:main"
+
+[tool.setuptools.package-data]
+ordo_local = ["assets/*.md", "assets/*.txt"]
+
+[tool.setuptools.packages.find]
+include = ["ordo_local*"]

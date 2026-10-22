@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 from dataclasses import dataclass
@@ -130,6 +131,12 @@ def build_prompt(
             "数组第 n 项对应当前 batch 第 n 行。输出前必须核对数组恰好有指定数量的项目。只输出数组，不要 Markdown、解释或行号。"
             '例如：["NEW_DOCUMENT", "TEXT", "H1"]。'
         )
+    elif output_format == "json_map":
+        output_instruction = (
+            "输出格式严格为合法 JSON 对象，键为当前行号，值为标签。"
+            f"必须恰好包含当前 batch 的 {len(current)} 个行号，不要添加、遗漏或重复行号。"
+            '只输出对象，不要 Markdown 或解释。例如：{"L0001": "NEW_DOCUMENT", "L0003": "TEXT"}。'
+        )
     else:
         output_instruction = "输出格式严格为：L0001 LABEL，每行一条。"
     return f"""你是文档行级结构标注器。只标注“当前 batch”中的行。
@@ -146,6 +153,12 @@ def build_prompt(
 
 【本文件全局结构分析】
 {json.dumps(global_structure, ensure_ascii=False)}
+
+【全局一级标题锚点】
+h1_titles 是按全文顺序抽取的正文一级标题清单，作为 H1 的强参考。
+清单中的真实独立章节标题应优先标为 H1，同级主章节保持一致；仍须符合标签规则中的标题定义。
+h1_titles 可能存在遗漏；未列出的行仍可根据当前上下文和全文结构识别为 H1。
+清单不是排他白名单，仍需结合上下文核对；目录条目、页眉、表格内部编号、列表项目和带编号的正文不是 H1。
 
 【当前层级状态：由已确认标签计算】
 {state}
@@ -174,6 +187,21 @@ def parse_labels(content: str, expected_ids: list[str], output_format: str) -> d
             raise ValueError(f"invalid label list: {values!r}")
         return dict(zip(expected_ids, values))
 
+    if output_format == "json_map":
+        def unique_pairs(pairs):
+            result = {}
+            for key, value in pairs:
+                if key in result:
+                    raise ValueError(f"duplicate label for {key}")
+                result[key] = value
+            return result
+        result = json.loads(candidate, object_pairs_hook=unique_pairs)
+        if not isinstance(result, dict) or set(result) != set(expected_ids):
+            raise ValueError(f"JSON map must contain exactly {expected_ids}")
+        if not all(isinstance(label, str) and label in LABELS for label in result.values()):
+            raise ValueError("invalid labels in JSON map")
+        return result
+
     parsed: dict[str, str] = {}
     for line in candidate.splitlines():
         match = LINE_PATTERN.match(line.strip())
@@ -198,8 +226,20 @@ def usage_values(usage: Any) -> tuple[int, int]:
     return int(prompt or 0), int(completion or 0)
 
 
+def build_labeled_text(rows: list[dict[str, Any]]) -> str:
+    """Keep complete source lines; align ASCII label fields with spaces."""
+    width = max(len(f"[{label}]") for label in LABELS)
+    output = []
+    for row in rows:
+        if row["label"] not in LABELS:
+            raise ValueError(f"Unknown label: {row['label']}")
+        prefix = f"[{row['label']}]"
+        output.append(f"{prefix:<{width}}  {row['text']}")
+    return "\n".join(output) + ("\n" if output else "")
+
+
 def build_outline(units: list[Unit], labels: dict[str, str]) -> str:
-    output: list[str] = ["# 目录"]
+    output: list[str] = ["**目录**"]
     current_document = "未命名文档"
     appendix_active = False
     for unit in units:
@@ -208,13 +248,13 @@ def build_outline(units: list[Unit], labels: dict[str, str]) -> str:
             continue
         if label == "NEW_DOCUMENT":
             current_document = unit.text
-            output.extend(["", f"## {current_document}"])
+            output.extend(["", f"**{current_document}**", ""])
             appendix_active = False
         elif label == "APPENDIX":
             output.append(f"- {unit.text}")
             appendix_active = True
-        elif label in {"H1", "H2", "H3"}:
-            level = int(label[1])
+        elif label in {"H1", "H2", "H3", "HN"}:
+            level = 4 if label == "HN" else int(label[1])
             indent = "  " * (level - 1 + int(appendix_active))
             output.append(f"{indent}- {unit.text}")
     return "\n".join(output).rstrip() + "\n"
@@ -224,7 +264,6 @@ def build_markdown(source_lines: list[str], labels: dict[str, str]) -> str:
     """Restore the full source text with Markdown structure inferred from labels."""
     output: list[str] = []
     toc_active = False
-    appendix_active = False
     for line_number, text in enumerate(source_lines, start=1):
         if not text.strip():
             if output and output[-1] != "": 
@@ -236,32 +275,26 @@ def build_markdown(source_lines: list[str], labels: dict[str, str]) -> str:
         if label == "NEW_DOCUMENT":
             if output and output[-1] != "": 
                 output.append("")
-            output.append(f"# {text}")
-            toc_active = appendix_active = False
+            output.extend([f"**{text}**", ""])
+            toc_active = False
         elif label == "APPENDIX":
             if output and output[-1] != "": 
                 output.append("")
-            output.append(f"## {text}")
-            appendix_active = True
+            output.extend([f"**{text}**", ""])
             toc_active = False
         elif label == "TOC":
             if not toc_active:
                 if output and output[-1] != "": 
                     output.append("")
-                output.append("## 目录")
+                output.extend(["**目录**", ""])
                 toc_active = True
             if text.strip() not in {"目录", "目 录"}:
                 output.append(f"- {text}")
-        elif label in {"H1", "H2", "H3"}:
-            level = int(label[1]) + 1 + int(appendix_active)
+        elif label in {"H1", "H2", "H3", "HN"}:
+            level = 4 if label == "HN" else int(label[1])
             if output and output[-1] != "": 
                 output.append("")
             output.append(f"{'#' * level} {text}")
-            toc_active = False
-        elif label == "HN":
-            if output and output[-1] != "":
-                output.append("")
-            output.append(f"**{text}**")
             toc_active = False
         elif label == "POINT":
             output.append(f"- {text}")
@@ -286,7 +319,9 @@ def main() -> None:
     parser.add_argument("--batch-size", type=int, default=18, help="Maximum nonempty lines per model call")
     parser.add_argument("--current-char-limit", type=int, default=200, help="Visible characters per current line")
     parser.add_argument("--batch-char-limit", type=int, default=3600, help="Maximum visible current-batch characters")
-    parser.add_argument("--output-format", choices=("line_ids", "label_list"), default="line_ids")
+    parser.add_argument("--output-format", choices=("line_ids", "label_list", "json_map"), default="json_map")
+    parser.add_argument("--no-format-fallback", action="store_true", help="Keep the requested format during retries for controlled comparisons")
+    parser.add_argument("--resume", action="store_true", help="Resume validated batches from a matching checkpoint")
     args = parser.parse_args()
 
     if args.batch_size < 1 or args.current_char_limit < 1 or args.batch_char_limit < 1:
@@ -311,7 +346,29 @@ def main() -> None:
     batch_records: list[dict[str, Any]] = []
     input_tokens = output_tokens = 0
     offset = 0
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint = args.output_dir / f"{args.input.stem}_checkpoint.json"
+    signature = hashlib.sha256(json.dumps({
+        "source": source_lines, "global": global_structure, "rules": label_rules,
+        "example": example, "model": model, "batch_size": args.batch_size,
+        "chars": args.current_char_limit, "batch_chars": args.batch_char_limit,
+        "format": args.output_format,
+        "no_format_fallback": args.no_format_fallback,
+        "response_format": {"type": "json_object"} if args.output_format == "json_map" else None,
+    }, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+    prior_elapsed = 0.0
+    if args.resume and checkpoint.exists():
+        saved = json.loads(checkpoint.read_text(encoding="utf-8"))
+        if saved["signature"] != signature:
+            raise ValueError("Checkpoint does not match the current input, prompts, model, or parameters")
+        labels = saved["labels"]
+        batch_records = saved["batch_records"]
+        input_tokens, output_tokens = saved["input_tokens"], saved["output_tokens"]
+        offset = sum(len(batch) for batch in batches[:len(batch_records)])
+        prior_elapsed = saved["elapsed_seconds"]
     for batch_index, current in enumerate(batches, start=1):
+        if batch_index <= len(batch_records):
+            continue
         previous = batches[batch_index - 2] if batch_index > 1 else []
         following = units[offset + len(current) : offset + len(current) + 3]
         prompt = build_prompt(
@@ -329,34 +386,68 @@ def main() -> None:
         batch_input_tokens = batch_output_tokens = 0
         batch_elapsed = 0.0
         attempts = 0
+        effective_format = args.output_format
+        raw_responses = []
         while True:
             extra_body = {"enable_thinking": False}
             if args.chat_template_disable_thinking:
                 extra_body = {"chat_template_kwargs": {"enable_thinking": False}}
             call_started = perf_counter()
+            request_options = {}
+            if effective_format == "json_map":
+                request_options["response_format"] = {"type": "json_object"}
             completion = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0,
-                max_completion_tokens=300,
+                max_completion_tokens=max(300, (args.batch_size * 300 + 17) // 18),
                 extra_body=extra_body,
+                **request_options,
             )
+            # Persist every returned call before parsing/checkpointing so
+            # invalid-format attempts remain auditable and billable usage is
+            # not lost when a batch fails. No API keys are written.
+            with (args.output_dir / f"{args.input.stem}_calls.jsonl").open("a", encoding="utf-8") as call_log:
+                call_log.write(json.dumps({
+                    "batch": batch_index, "attempt": attempts + 1,
+                    "elapsed_seconds": round(perf_counter() - call_started, 6),
+                    "signature": signature,
+                    "response": completion.model_dump(mode="json"),
+                }, ensure_ascii=False) + "\n")
             batch_elapsed += perf_counter() - call_started
             prompt_count, completion_count = usage_values(completion.usage)
             batch_input_tokens += prompt_count
             batch_output_tokens += completion_count
             content = completion.choices[0].message.content or ""
+            raw_responses.append({"content": content, "finish_reason": completion.choices[0].finish_reason, "output_format": effective_format})
             try:
-                result = parse_labels(content, [unit.line_id for unit in current], args.output_format)
+                result = parse_labels(content, [unit.line_id for unit in current], effective_format)
                 break
             except ValueError:
-                if attempts >= 1:
+                if attempts >= 3:
                     raise
                 attempts += 1
-                prompt += (
-                    f"\n【格式修正】上一输出未通过格式校验。当前 batch 有 {len(current)} 行，"
-                    "请重新只输出一个恰好同长度的合法 JSON 标签数组。"
-                )
+                if attempts >= 2 and effective_format == "line_ids" and not args.no_format_fallback:
+                    effective_format = "label_list"
+                    prompt = build_prompt(
+                        label_rules=label_rules, example=example, global_structure=global_structure,
+                        state=render_state(labels, units), previous=previous, all_labels=labels,
+                        current=current, following=following, current_char_limit=args.current_char_limit,
+                        output_format=effective_format,
+                    )
+                if effective_format == "label_list":
+                    correction = f"请重新只输出一个恰好包含 {len(current)} 项的合法 JSON 标签数组。"
+                elif effective_format == "json_map":
+                    correction = (
+                        "请只输出合法 JSON 对象（行号:标签），键必须恰好为："
+                        + "、".join(unit.line_id for unit in current)
+                    )
+                else:
+                    correction = (
+                        "请逐行输出 行号 LABEL，严格按以下行号顺序，不得自行补齐中间行号："
+                        + "、".join(unit.line_id for unit in current)
+                    )
+                prompt += f"\n【格式修正】上一输出未通过格式校验。{correction}"
 
         labels.update(result)
         input_tokens += batch_input_tokens
@@ -369,10 +460,20 @@ def main() -> None:
                 "input_tokens": batch_input_tokens,
                 "output_tokens": batch_output_tokens,
                 "format_retries": attempts,
+                "actual_output_format": effective_format,
+                "raw_responses": raw_responses,
                 "labels": result,
             }
         )
         offset += len(current)
+        checkpoint_temporary = checkpoint.with_suffix(checkpoint.suffix + ".tmp")
+        checkpoint_temporary.write_text(json.dumps({
+            "signature": signature, "labels": labels, "batch_records": batch_records,
+            "input_tokens": input_tokens, "output_tokens": output_tokens,
+            "elapsed_seconds": prior_elapsed + perf_counter() - started_at,
+        }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        checkpoint_temporary.replace(checkpoint)
+        print(f"batch {batch_index}/{len(batches)} complete", flush=True)
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     stem = args.input.stem
@@ -388,13 +489,15 @@ def main() -> None:
         "batch_size_limit": args.batch_size,
         "current_char_limit": args.current_char_limit,
         "output_format": args.output_format,
-        "elapsed_seconds": round(perf_counter() - started_at, 3),
+        "response_format": {"type": "json_object"} if args.output_format == "json_map" else None,
+        "elapsed_seconds": round(prior_elapsed + perf_counter() - started_at, 3),
         "input_tokens": input_tokens,
         "output_tokens": output_tokens,
         "total_tokens": input_tokens + output_tokens,
         "batch_records": batch_records,
     }
     (args.output_dir / f"{stem}_labels.json").write_text(json.dumps(label_rows, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (args.output_dir / f"{stem}_labeled.txt").write_text(build_labeled_text(label_rows), encoding="utf-8")
     (args.output_dir / f"{stem}_outline.md").write_text(build_outline(units, labels), encoding="utf-8")
     (args.output_dir / f"{stem}_reconstructed.md").write_text(
         build_markdown(source_lines, labels), encoding="utf-8"

@@ -1,0 +1,15 @@
+{
+  "name": "Ordo-Qwen3.5-2B-Reviewed2-Final-BF16",
+  "download_url": "https://modelscope.cn/models/l424102993/Ordo_2B",
+  "sha256_manifest_url": "https://www.modelscope.cn/api/v1/models/l424102993/Ordo_2B/repo?Revision=master&FilePath=checksums.json",
+  "publication_status": "Published on ModelScope; weights are not bundled with the code release",
+  "base_architecture": "Qwen3.5-2B",
+  "dtype": "bfloat16",
+  "merged_lora": true,
+  "source_checkpoint_step": 3296,
+  "source_epoch": 4,
+  "selection": "Dev-selected best, not last",
+  "max_model_len": 8192,
+  "label_window_nonempty_lines": 18,
+  "license_note": "Consult the actual weight distribution and upstream license before redistribution."
+}

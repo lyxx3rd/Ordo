@@ -10,7 +10,7 @@ fi
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SOURCE="$1"
 OUTPUT_DIR="$2"
-PYTHON_BIN="${LINEBREAK_PYTHON:-/home/liyunhan/miniconda3/envs/lyh/bin/python}"
+PYTHON_BIN="${LINEBREAK_PYTHON:-python}"
 API_URL="${LINEBREAK_API_URL:-http://127.0.0.1:8010/v1/completions}"
 MODEL="${LINEBREAK_MODEL:-qwen3.5-2b-local}"
 CONTEXT_CHARS="${LINEBREAK_CONTEXT_CHARS:-30}"

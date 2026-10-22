@@ -1,0 +1,77 @@
+{
+  "note": "Historical, heterogeneous evaluation sets; not a cross-model leaderboard. No raw text, document identities or credentials included.",
+  "online": {
+    "documents": 12,
+    "scored_lines": 1912,
+    "excluded_uncertain_lines": 3,
+    "scope": "12-document prompt calibration; each model runs its own Analyze+Label, not isolated Label evaluation",
+    "gold_note": "immutable gold_v1 plus explicit 15-line PDF adjudication overlay",
+    "models": {
+      "qwen3.7-flash": {
+        "accuracy": 0.8807531380753139,
+        "h1_f1": 0.9864864864864865,
+        "h2_f1": 0.8367346938775511,
+        "h3_f1": 0.8571428571428571,
+        "wall_seconds": 106.139,
+        "input_tokens": 544067,
+        "output_tokens": 23065
+      },
+      "qwen3.7-plus": {
+        "accuracy": 0.9701882845188284,
+        "h1_f1": 0.9866666666666667,
+        "h2_f1": 0.9142857142857143,
+        "h3_f1": 0.9019607843137255,
+        "wall_seconds": 197.598,
+        "input_tokens": 542588,
+        "output_tokens": 22112
+      },
+      "qwen3.7-max": {
+        "accuracy": 0.9654811715481172,
+        "h1_f1": 0.9933774834437086,
+        "h2_f1": 0.897196261682243,
+        "h3_f1": 0.8539325842696629,
+        "wall_seconds": 163.104,
+        "input_tokens": 542528,
+        "output_tokens": 22573
+      }
+    }
+  },
+  "local_2b": {
+    "documents": 126,
+    "lines": 43423,
+    "windows": 2472,
+    "weight_form": "base + Dev-best LoRA, checkpoint-3296, epoch4",
+    "accuracy": 0.9111991340994404,
+    "h1_f1": 0.8971450919045757,
+    "h2_f1": 0.7708737864077669,
+    "h3_f1": 0.8208578637510513,
+    "macro_f1": 0.8457651870760182,
+    "json_valid_rate": 0.9991909385113269,
+    "wall_seconds": 539.5180228371173,
+    "scope": "Single 3090, 16 window requests, no Analyze, excludes startup"
+  },
+  "merged_api_acceptance": {
+    "documents": 126,
+    "original_lines": 43423,
+    "first_pass_success": 124,
+    "first_pass_failures": 2,
+    "first_pass_wall_seconds": 417.28250333387405,
+    "retest_success": 2,
+    "retest_wall_seconds": 43.22408224735409,
+    "final_success_across_runs": 126,
+    "document_concurrency": 4,
+    "window_concurrency": 16,
+    "formats": [
+      "json",
+      "txt",
+      "md"
+    ],
+    "note": "After invalid-output retries were constrained, only two failed documents were rerun; not a fresh full-set zero-failure benchmark. One source paragraph contains internal newlines; TXT adds four physical rows."
+  },
+  "source_artifact_sha256": {
+    "results/qms_calibration_v4_comparison/metrics.json": "a666fbd4f725f2ff1e2c34efc932cca5865ef7b64576e3ee3ede354e6ea0a949",
+    "results/mixed_lora_reviewed2/evaluation/test_best/metrics.json": "0561a5536bc511d0400d0ad194de34ed6ca421a2863687ebbd4891b5cc05c834",
+    "results/local_service_acceptance_20261022/summary.json": "0a670b160e8ed84f88c7e08f6ac337487cfe0bb76f74a6616b013d6f105c32b5",
+    "results/local_service_acceptance_20261022/retest_summary.json": "45e410bc4cb41eb16c2264dd02368fade0403ab7cff01119874726712f0f24d0"
+  }
+}

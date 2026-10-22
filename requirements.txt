@@ -1,2 +1,3 @@
-openai>=1.0
-PyYAML>=6.0
+openai>=1.50,<3
+PyYAML>=6.0,<7
+-e ./local_service

@@ -1,16 +1,17 @@
-"""Minimal Qwen connectivity check using the chat_v06 key and endpoint conventions."""
+"""Minimal connectivity check for an OpenAI-compatible Qwen endpoint."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 import yaml
 from openai import OpenAI
 
 
-BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+BASE_URL = os.environ.get("ORDO_ONLINE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
 DEFAULT_CONFIG = Path(__file__).resolve().parent / "config.yaml"
 
 
@@ -21,7 +22,7 @@ def load_settings(config_path: Path) -> tuple[str, Path]:
     if not isinstance(config, dict):
         raise ValueError("config.yaml must contain a mapping")
 
-    model = config.get("model_name")
+    model = os.environ.get("ORDO_ONLINE_MODEL") or config.get("model_name")
     key_location = config.get("api_keys_path")
     if not isinstance(model, str) or not model.strip():
         raise ValueError("config.yaml is missing model_name")
@@ -35,9 +36,11 @@ def load_settings(config_path: Path) -> tuple[str, Path]:
 
 
 def load_api_key(key_path: Path) -> str:
+    if os.environ.get("ORDO_ONLINE_API_KEY"):
+        return os.environ["ORDO_ONLINE_API_KEY"]
     with key_path.open(encoding="utf-8") as file:
         keys = json.load(file)
-    key = keys.get("Qwen_deli") if isinstance(keys, dict) else None
+    key = keys.get(os.environ.get("ORDO_ONLINE_KEY_FIELD", "Qwen_deli")) if isinstance(keys, dict) else None
     if not isinstance(key, str) or not key.strip():
         raise ValueError(f"Qwen_deli is missing from {key_path}")
     return key

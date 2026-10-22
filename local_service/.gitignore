@@ -1,0 +1,9 @@
+config.local.json
+runtime/
+*.egg-info/
+build/
+dist/
+__pycache__/
+*.pyc
+.venv/
+models/

@@ -1,0 +1,4 @@
+# Install in a separate Linux/NVIDIA GPU Python 3.12 environment.
+# Tested local inference version. Let vLLM resolve its matching torch/CUDA stack.
+vllm==0.31.0
+-e ./local_service
