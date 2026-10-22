@@ -1,0 +1,122 @@
+[
+  {
+    "heading": "2.        Products.",
+    "rows": [
+      {
+        "line_id": "L0017",
+        "label": "H1",
+        "text": "2.        Products."
+      },
+      {
+        "line_id": "L0018",
+        "label": "TEXT",
+        "text": "2.1.      Provider Software. Subject to this Agreement (including Section 2.2 (Restrictions)), Customer may install, copy and use"
+      },
+      {
+        "line_id": "L0019",
+        "label": "TEXT",
+        "text": "          the Provider Software for its own business purposes in accordance with the Permitted Use."
+      },
+      {
+        "line_id": "L0020",
+        "label": "TEXT",
+        "text": "2.2.      Restrictions. Customer will not and will not permit anyone else to: (a) sell, sublicense, distribute or rent the Product (in"
+      },
+      {
+        "line_id": "L0021",
+        "label": "TEXT",
+        "text": "          whole or part), grant non-Users access to the Product or use the Product to provide a hosted or managed service to"
+      },
+      {
+        "line_id": "L0022",
+        "label": "TEXT",
+        "text": "          others, (b) reverse engineer, decompile or seek to access the source code of the Product, except to the extent these"
+      },
+      {
+        "line_id": "L0023",
+        "label": "TEXT",
+        "text": "          restrictions are prohibited by Laws and then only upon advance notice to Provider, (c) copy, modify, create derivative"
+      },
+      {
+        "line_id": "L0024",
+        "label": "TEXT",
+        "text": "          works of or remove proprietary notices from the Product, (d) circumvent access restrictions to any Product, or (e) use"
+      },
+      {
+        "line_id": "L0025",
+        "label": "TEXT",
+        "text": "          the Product to develop a product or service that competes with the Product."
+      },
+      {
+        "line_id": "L0026",
+        "label": "TEXT",
+        "text": "2.3.      High-Risk Activities. Customer will not use the Product for High-Risk Activities and acknowledges that the Product is not"
+      },
+      {
+        "line_id": "L0027",
+        "label": "TEXT",
+        "text": "          designed for (and Provider has no liability for) use in connection with High-Risk Activities."
+      },
+      {
+        "line_id": "L0028",
+        "label": "TEXT",
+        "text": "2.4.      Users. Customer may permit Users to use the Product on its behalf. Customer is responsible for provisioning and"
+      },
+      {
+        "line_id": "L0029",
+        "label": "TEXT",
+        "text": "          managing its User accounts, for its Users’ actions through the Product and for their compliance with this Agreement."
+      },
+      {
+        "line_id": "L0030",
+        "label": "TEXT",
+        "text": "          Customer will ensure that Users keep their login credentials confidential and will promptly notify Provider upon learning"
+      },
+      {
+        "line_id": "L0031",
+        "label": "TEXT",
+        "text": "          of any compromise of User accounts or credentials."
+      }
+    ]
+  },
+  {
+    "heading": "3.        Data.",
+    "rows": [
+      {
+        "line_id": "L0033",
+        "label": "H1",
+        "text": "3.        Data."
+      },
+      {
+        "line_id": "L0034",
+        "label": "TEXT",
+        "text": "3.1.      Usage Data."
+      },
+      {
+        "line_id": "L0035",
+        "label": "POINT",
+        "text": "          (a) Provider may collect Usage Data and use it to operate, improve and support the Product and for other lawful"
+      },
+      {
+        "line_id": "L0036",
+        "label": "TEXT",
+        "text": "              business purposes, including benchmarking and reports. However, Provider will not disclose Usage Data externally"
+      },
+      {
+        "line_id": "L0037",
+        "label": "TEXT",
+        "text": "              unless it is (i) de-identified so that it does not identify Customer, its Users or any other person and (ii) aggregated"
+      },
+      {
+        "line_id": "L0038",
+        "label": "TEXT",
+        "text": "              with data across other customers."
+      },
+      {
+        "line_id": "L0039",
+        "label": "POINT",
+        "text": "          (b) Customer may disable collection of Usage Data through settings in the Product or other means provided by Provider."
+      }
+    ]
+  }
+]

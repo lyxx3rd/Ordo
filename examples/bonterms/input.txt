@@ -1,0 +1,22 @@
+2.        Products.
+2.1.      Provider Software. Subject to this Agreement (including Section 2.2 (Restrictions)), Customer may install, copy and use
+          the Provider Software for its own business purposes in accordance with the Permitted Use.
+2.2.      Restrictions. Customer will not and will not permit anyone else to: (a) sell, sublicense, distribute or rent the Product (in
+          whole or part), grant non-Users access to the Product or use the Product to provide a hosted or managed service to
+          others, (b) reverse engineer, decompile or seek to access the source code of the Product, except to the extent these
+          restrictions are prohibited by Laws and then only upon advance notice to Provider, (c) copy, modify, create derivative
+          works of or remove proprietary notices from the Product, (d) circumvent access restrictions to any Product, or (e) use
+          the Product to develop a product or service that competes with the Product.
+2.3.      High-Risk Activities. Customer will not use the Product for High-Risk Activities and acknowledges that the Product is not
+          designed for (and Provider has no liability for) use in connection with High-Risk Activities.
+2.4.      Users. Customer may permit Users to use the Product on its behalf. Customer is responsible for provisioning and
+          managing its User accounts, for its Users’ actions through the Product and for their compliance with this Agreement.
+          Customer will ensure that Users keep their login credentials confidential and will promptly notify Provider upon learning
+          of any compromise of User accounts or credentials.
+3.        Data.
+3.1.      Usage Data.
+          (a) Provider may collect Usage Data and use it to operate, improve and support the Product and for other lawful
+              business purposes, including benchmarking and reports. However, Provider will not disclose Usage Data externally
+              unless it is (i) de-identified so that it does not identify Customer, its Users or any other person and (ii) aggregated
+              with data across other customers.
+          (b) Customer may disable collection of Usage Data through settings in the Product or other means provided by Provider.

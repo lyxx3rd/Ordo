@@ -1,0 +1,41 @@
+{
+  "source_url": "https://bonterms.com/download-center/software-license-terms",
+  "license": "CC BY 4.0",
+  "creator": "Bonterms, Inc.",
+  "source_pdf_sha256": "2e0256f0fc3fb73f9dccbd10333f39cc3b4d37dc3c25a89a3360ededb82cd43d",
+  "page": 1,
+  "crop_pdf_points": [
+    43,
+    261,
+    573,
+    591
+  ],
+  "source_line_ids": [
+    "L0017",
+    "L0018",
+    "L0019",
+    "L0020",
+    "L0021",
+    "L0022",
+    "L0023",
+    "L0024",
+    "L0025",
+    "L0026",
+    "L0027",
+    "L0028",
+    "L0029",
+    "L0030",
+    "L0031",
+    "L0033",
+    "L0034",
+    "L0035",
+    "L0036",
+    "L0037",
+    "L0038",
+    "L0039"
+  ],
+  "prediction_checkpoint_step": 3296,
+  "prediction_type": "historical base + best LoRA; no manual label edits",
+  "modifications": "Cropped page screenshot; excerpted text; SVG whitespace compacted and abbreviated; added predicted labels and H1 grouping.",
+  "source_pdf_not_bundled": true
+}
